@@ -1,6 +1,7 @@
 # WoCClassifier
 
-TODO: Write a gem description
+This ruby gem provides the scripts we use to classify and extract build
+activity data from the World of Code dataset.
 
 ## Installation
 
@@ -18,7 +19,15 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Add this line to your Ruby application:
+
+    require 'WoC_classifier'
+
+and you will have access to our set of extractors/classifiers. For example,
+to extract all adoption data, use the AdoptionExtractor as follows:
+
+    myextractor = WoCClassifier::AdoptionExtractor.new("mylistfile.txt")
+    myextractor.extract_all
 
 ## Contributing
 
