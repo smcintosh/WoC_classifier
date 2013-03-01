@@ -8,9 +8,9 @@ Gem::Specification.new do |gem|
   gem.version       = WoCClassifier::VERSION
   gem.authors       = ["Shane McIntosh"]
   gem.email         = ["shanemcintosh@acm.org"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
-  gem.homepage      = ""
+  gem.description   = %q{A family of scripts used to classify and extract data from the World of Code dataset}
+  gem.summary       = %q{World of Code classifier scripts}
+  gem.homepage      = "https://github.com/smcintosh/WoC_classifier"
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
