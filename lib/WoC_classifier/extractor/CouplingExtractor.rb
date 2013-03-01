@@ -1,25 +1,28 @@
 require "WoC_classifier/WoC/FileCategories.rb"
 
 module WoCClassifier
-  class ChurnExtractor < AbstractExtractor
+  class CouplingExtractor < AbstractExtractor
     def initialize(listfile, prefix="", numthreads=8)
       super(listfile, prefix, numthreads)
     end
 
     def header
-      puts "@relation churn_data"
+      puts "@relation rq1_data"
       puts
       puts "@attribute projname string"
       puts "@attribute tech string"
       puts "@attribute cmts numeric"
-      puts "@attribute periods numeric"
+      puts "@attribute co_src_cmts numeric"
       puts "@attribute authors numeric"
-      puts "@attribute files numeric"
-      puts "@attribute activity_med numeric"
+      puts "@attribute co_src_authors numeric"
       puts "@attribute lines_add_med numeric"
       puts "@attribute lines_del_med numeric"
-      puts "@attribute lines_added numeric"
-      puts "@attribute lines_deleted numeric"
+      puts "@attribute lines_add_comp numeric"
+      puts "@attribute lines_del_comp numeric"
+      puts "@attribute lines_add_churn numeric"
+      puts "@attribute lines_del_churn numeric"
+      puts "@attribute lines_add_comp_churn numeric"
+      puts "@attribute lines_del_comp_churn numeric"
       puts
       puts "@data"
     end
@@ -29,7 +32,7 @@ module WoCClassifier
       filecategories = FileCategories.new(filename, @langmap)
       filecategories.parseFile(fname)
       @print_mutex.synchronize do
-        filecategories.printChurnData
+        filecategories.printCouplingData
       end
     end
   end
