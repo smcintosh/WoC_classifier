@@ -2,8 +2,9 @@ require "WoC_classifier/WoC/FileCategories.rb"
 
 module WoCClassifier
   class CouplingExtractor < AbstractExtractor
-    def initialize(listfile, prefix="", numthreads=8)
+    def initialize(listfile, prefix="", numthreads=8, summary=true)
       super(listfile, prefix, numthreads)
+      @summary = summary
     end
 
     def header
@@ -32,7 +33,7 @@ module WoCClassifier
       filecategories = FileCategories.new(filename, @langmap)
       filecategories.parseFile(fname)
       @print_mutex.synchronize do
-        filecategories.printCouplingData
+        filecategories.printCouplingData(@summary)
       end
     end
   end
