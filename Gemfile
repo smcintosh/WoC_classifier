@@ -7,3 +7,4 @@ gemspec
 # Dependencies
 gem "rake"
 gem "rspec"
+gem "github-linguist"

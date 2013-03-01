@@ -1,9 +1,9 @@
-require 'WoC_classifier'
+require "WoC_classifier"
 
-describe WoCClassifier::Churn, "#extract" do
+describe WoCClassifier::ChurnExtractor, "#extract" do
   it "fails to extract for invalid input" do
-    myextractor = WoCClassifier::Churn.new("/tmp")
+    myextractor = WoCClassifier::ChurnExtractor.new(File.expand_path("../data/testlist", __FILE__), File.expand_path("../data/", __FILE__), 2)
     myextractor.should_not be_nil
-    WoCClassifier::Churn.new("/tmp").extract
+    myextractor.extract_all
   end
 end
