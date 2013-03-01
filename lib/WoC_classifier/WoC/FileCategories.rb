@@ -57,7 +57,7 @@ class FileCategories
     end
 
     def printBuildData
-        print "#{projname}"
+        print "#{@projname}"
         @categories.sort.each do |lang, cat|
             if (@langmap[lang] == "programming" or @langmap[lang] == "buildtech")
                 print ",#{cat.filecount}"
