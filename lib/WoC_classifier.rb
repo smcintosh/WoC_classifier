@@ -1,5 +1,9 @@
 require "WoC_classifier/version"
 
 module WoCClassifier
-  # Your code goes here...
+  class WoCClassifier
+    def self.hi
+      puts "Hello!"
+    end
+  end
 end
