@@ -30,7 +30,11 @@ module WoCClassifier
       filecategories = FileCategories.new(filename, @langmap)
       filecategories.parseFile(fname)
       @print_mutex.synchronize do
-        filecategories.printChurnData(@summary)
+        if (@summary)
+          filecategories.printChurnDataSummary()
+        else
+          filecategories.printChurnData()
+        end
       end
     end
   end

@@ -98,21 +98,19 @@ class FileCategories
     return tortn
   end
 
-  def printChurnData(summary=true)
-    @build_categories.each do |catname|
-      if (@categories[catname].size > 0)
-        if (summary)
-          print "#{@projname},#{catname},"
-          @categories[catname].print(@allcommits.periods, @allcommits.commits)
-          puts
-        else
-          @categories[catname].printPeriods(@projname, catname, @allcommits.periods, @allcommits.commits)
-        end
-      end
+  def printChurnDataSummary()
+    each_nonempty_buildtech do |catname|
+      print "#{@projname},#{catname},"
+      @categories[catname].print(@allcommits.periods, @allcommits.commits)
+      puts
     end
 
-    if (summary)
-      puts "#{@projname},project,#{@allcommits.size},#{@allcommits.periods.size},#{@allauthors.size},#{@allfiles.size},1,0,0,0,0"
+    puts "#{@projname},project,#{@allcommits.size},#{@allcommits.periods.size},#{@allauthors.size},#{@allfiles.size},1,0,0,0,0"
+  end
+
+  def printChurnData()
+    each_nonempty_buildtech do |catname|
+      @categories[catname].printPeriods(@projname, catname, @allcommits.periods, @allcommits.commits)
     end
   end
 
