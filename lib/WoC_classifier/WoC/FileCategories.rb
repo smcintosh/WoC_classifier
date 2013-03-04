@@ -152,16 +152,6 @@ class FileCategories
 
   def printCouplingDataSummary()
     each_nonempty_buildtech do |catname|
-      each_nonempty_proglang do |lang, category|
-        @categories[catname].printPeriodicCouplingWith([category], @allcommits.periods, @projname, lang, catname)
-      end
-
-      @categories[catname].printPeriodicCouplingWith(@categories.values,@allcommits.periods, @projname, "all", catname)
-    end
-  end
-
-  def printCouplingDataMonthly()
-    each_nonempty_buildtech do |catname|
       bldcommits = @categories[catname].commits.keys.to_set
       srcbldcommits = Set.new
       bldauthors = @categories[catname].authors
@@ -176,13 +166,17 @@ class FileCategories
         mysrcbldauthors = srcauthors.intersection(bldauthors)
         srcbldauthors = srcbldauthors.union(mysrcbldauthors)
 
-        puts "#{@projname},#{lang}-#{catname},#{srccommits.size},#{mysrcbldcommits.size},#{srcauthors.size},#{mysrcbldauthors.size},#{category.linesmedian(bldcommits, true)},#{category.linesmedian(bldcommits, false)},#{@categories[catname].linesmedian(srccommits, true, false)},#{@categories[catname].linesmedian(srccommits, false, false)},#{@categories[catname].churn(srccommits, true)},#{@categories[catname].churn(srccommits, false)},#{@categories[catname].churn(srccommits, true, false)},#{@categories[catname].churn(srccommits, false, false)}"
+        printCouplingDataSummaryLine("#{lang}-#{catname}", srccommits, mysrcbldcommits, srcauthors, mysrcbldauthors, category)
       end
 
-      puts "#{@projname},#{catname},#{bldcommits.size},#{srcbldcommits.size},#{bldauthors.size},#{srcbldauthors.size},#{@categories[catname].linesmedian(srcbldcommits, true)},#{@categories[catname].linesmedian(srcbldcommits, false)},#{@categories[catname].linesmedian(srcbldcommits, true, false)},#{@categories[catname].linesmedian(srcbldcommits, false, false)},#{@categories[catname].churn(srcbldcommits, true)},#{@categories[catname].churn(srcbldcommits, false)},#{@categories[catname].churn(srcbldcommits, true, false)},#{@categories[catname].churn(srcbldcommits, false, false)}"
+      printCouplingDataSummaryLine(catname, bldcommits, srcbldcommits, bldauthors, srcbldauthors, @categories[catname])
     end
 
-    puts "#{@projname},project,#{@allcommits.size},0,#{@allauthors.size},0,0,0,0,0,0,0,0,0"
+    printCouplingDataSummaryLine("project", @allcommits.commits, Set.new, @allauthors, Set.new, CategoryStats.new)
+  end
+
+  def printCouplingDataSummaryLine(techname, cmts, coupledcmts, authors, coupledauthors, category)
+    puts "#{@projname},#{techname},#{cmts.size},#{coupledcmts.size},#{authors.size},#{coupledauthors.size},#{category.linesmedian(cmts, true)},#{category.linesmedian(cmts, false)},#{category.linesmedian(cmts, true, false)},#{category.linesmedian(cmts, false, false)},#{category.churn(cmts, true)},#{category.churn(cmts, false)},#{category.churn(cmts, true, false)},#{category.churn(cmts, false, false)}"
   end
 
   # ADOPTION
@@ -191,6 +185,16 @@ class FileCategories
       if (@categories[catname].size > 0)
         puts "#{@projname},#{catname},#{@categories[catname].firstCommitPeriod},#{@categories[catname].firstCommitDelay(@allcommits.firstCommitPeriod, @allcommits.lastCommitPeriod)}"
       end
+    end
+  end
+
+  def printCouplingDataMonthly()
+    each_nonempty_buildtech do |catname|
+      each_nonempty_proglang do |lang, category|
+        @categories[catname].printPeriodicCouplingWith([category], @allcommits.periods, @projname, lang, catname)
+      end
+
+      @categories[catname].printPeriodicCouplingWith(@categories.values,@allcommits.periods, @projname, "all", catname)
     end
   end
 end
