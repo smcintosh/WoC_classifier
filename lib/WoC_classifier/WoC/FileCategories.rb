@@ -36,8 +36,10 @@ class FileCategories
 
   def parseFile(fname)
     File.read(fname).each_line do |line|
+      line.strip!
+
       # Parse the line
-      projpath,commitid,author,commiter,aeml,ceml,lines,authtime,committime,commitfile,message = line.strip.split(";")
+      projpath,commitid,author,commiter,aeml,ceml,lines,authtime,committime,commitfile,message = line.split(";")
 
       commitfile = clean_file_path(commitfile)
 
