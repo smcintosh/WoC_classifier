@@ -97,10 +97,8 @@ class CategoryStats
     pset = myperiods(allperiods)
     pset.each do |period|
       mycmts = commitsinperiod(@commits, period) 
-      allcmts = commitsinperiod(allcommits, period)
 
-      ratios << mycmts.size.to_f / allcmts.size.to_f
-
+      ratios << mycmts.size.to_f / commitsinperiod(allcommits, period).size.to_f
       addsizes << getchurn(mycmts, true)
       delsizes << getchurn(mycmts, false)
     end
