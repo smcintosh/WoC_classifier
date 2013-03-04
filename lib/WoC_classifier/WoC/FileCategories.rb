@@ -129,30 +129,26 @@ class FileCategories
     end
   end
 
-  def printCouplingData(summary = true)
-    if (summary)
-      printCouplingDataSummary()
-    else
-      each_nonempty_buildtech do |catname|
-        bldcommits = @categories[catname].commits.keys.to_set
-        srcbldcommits = Set.new
-        bldauthors = @categories[catname].authors
-        srcbldauthors = Set.new
+  def printCouplingData()
+    each_nonempty_buildtech do |catname|
+      bldcommits = @categories[catname].commits.keys.to_set
+      srcbldcommits = Set.new
+      bldauthors = @categories[catname].authors
+      srcbldauthors = Set.new
 
-        each_nonempty_proglang do |lang,category|
-          srccommits = category.commits.keys.to_set
-          mysrcbldcommits = srccommits.intersection(bldcommits)
-          srcbldcommits = srcbldcommits.union(mysrcbldcommits)
+      each_nonempty_proglang do |lang,category|
+        srccommits = category.commits.keys.to_set
+        mysrcbldcommits = srccommits.intersection(bldcommits)
+        srcbldcommits = srcbldcommits.union(mysrcbldcommits)
 
-          srcauthors = category.authors
-          mysrcbldauthors = srcauthors.intersection(bldauthors)
-          srcbldauthors = srcbldauthors.union(mysrcbldauthors)
+        srcauthors = category.authors
+        mysrcbldauthors = srcauthors.intersection(bldauthors)
+        srcbldauthors = srcbldauthors.union(mysrcbldauthors)
 
-          puts "#{@projname},#{lang}-#{catname},#{srccommits.size},#{mysrcbldcommits.size},#{srcauthors.size},#{mysrcbldauthors.size},#{category.linesmedian(bldcommits, true)},#{category.linesmedian(bldcommits, false)},#{@categories[catname].linesmedian(srccommits, true, false)},#{@categories[catname].linesmedian(srccommits, false, false)},#{@categories[catname].churn(srccommits, true)},#{@categories[catname].churn(srccommits, false)},#{@categories[catname].churn(srccommits, true, false)},#{@categories[catname].churn(srccommits, false, false)}"
-        end
-
-        puts "#{@projname},#{catname},#{bldcommits.size},#{srcbldcommits.size},#{bldauthors.size},#{srcbldauthors.size},#{@categories[catname].linesmedian(srcbldcommits, true)},#{@categories[catname].linesmedian(srcbldcommits, false)},#{@categories[catname].linesmedian(srcbldcommits, true, false)},#{@categories[catname].linesmedian(srcbldcommits, false, false)},#{@categories[catname].churn(srcbldcommits, true)},#{@categories[catname].churn(srcbldcommits, false)},#{@categories[catname].churn(srcbldcommits, true, false)},#{@categories[catname].churn(srcbldcommits, false, false)}"
+        puts "#{@projname},#{lang}-#{catname},#{srccommits.size},#{mysrcbldcommits.size},#{srcauthors.size},#{mysrcbldauthors.size},#{category.linesmedian(bldcommits, true)},#{category.linesmedian(bldcommits, false)},#{@categories[catname].linesmedian(srccommits, true, false)},#{@categories[catname].linesmedian(srccommits, false, false)},#{@categories[catname].churn(srccommits, true)},#{@categories[catname].churn(srccommits, false)},#{@categories[catname].churn(srccommits, true, false)},#{@categories[catname].churn(srccommits, false, false)}"
       end
+
+      puts "#{@projname},#{catname},#{bldcommits.size},#{srcbldcommits.size},#{bldauthors.size},#{srcbldauthors.size},#{@categories[catname].linesmedian(srcbldcommits, true)},#{@categories[catname].linesmedian(srcbldcommits, false)},#{@categories[catname].linesmedian(srcbldcommits, true, false)},#{@categories[catname].linesmedian(srcbldcommits, false, false)},#{@categories[catname].churn(srcbldcommits, true)},#{@categories[catname].churn(srcbldcommits, false)},#{@categories[catname].churn(srcbldcommits, true, false)},#{@categories[catname].churn(srcbldcommits, false, false)}"
     end
 
     puts "#{@projname},project,#{@allcommits.size},0,#{@allauthors.size},0,0,0,0,0,0,0,0,0"
