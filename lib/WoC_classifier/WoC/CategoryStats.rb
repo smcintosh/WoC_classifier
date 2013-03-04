@@ -139,11 +139,9 @@ class CategoryStats
     sorted = arr.sort
     med = 0
 
-    if (arr.size > 1)
+    if (arr.size > 0)
       mid = arr.size/2
       med = (arr.size % 2 == 0) ? (arr[mid-1] + arr[mid]) / 2 : arr[mid]
-    elsif (arr.size > 0)
-      med = arr[0]
     end
 
     return med
