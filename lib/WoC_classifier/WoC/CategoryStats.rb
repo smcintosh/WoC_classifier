@@ -85,10 +85,15 @@ class CategoryStats
     return fileset 
   end
 
+  def getchurn(commits, add=true)
+    return commits.inject(0) {|sum, n| sum + @commits[n].lines(add) }
+  end
+
   def print(allperiods, allcommits)
     ratios = []
     addsizes = []
     delsizes = []
+
     pset = myperiods(allperiods)
     pset.each do |period|
       mycmts = commitsinperiod(@commits, period) 
@@ -96,8 +101,8 @@ class CategoryStats
 
       ratios << mycmts.size.to_f / allcmts.size.to_f
 
-      addsizes << @commits.values.inject(0) {|sum, n| sum + n.lines(true) }
-      delsizes << @commits.values.inject(0) {|sum, n| sum + n.lines(false) }
+      addsizes << getchurn(mycmts, true)
+      delsizes << getchurn(mycmts, false)
     end
 
     STDOUT.print "#{@commits.size},#{pset.size},#{@authors.size},#{@files.size},#{median(ratios)},#{median(@lines_added)},#{median(@lines_deleted)},#{median(addsizes)},#{median(delsizes)}"
