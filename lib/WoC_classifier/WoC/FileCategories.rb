@@ -98,32 +98,7 @@ class FileCategories
     return tortn
   end
 
-  def printChurnDataSummary()
-    each_nonempty_buildtech do |catname|
-      print "#{@projname},#{catname},"
-      @categories[catname].print(@allcommits.periods, @allcommits.commits)
-      puts
-    end
-
-    puts "#{@projname},project,#{@allcommits.size},#{@allcommits.periods.size},#{@allauthors.size},#{@allfiles.size},1,0,0,0,0"
-  end
-
-  def printChurnData()
-    each_nonempty_buildtech do |catname|
-      @categories[catname].printPeriods(@projname, catname, @allcommits.periods, @allcommits.commits)
-    end
-  end
-
-  def printCouplingDataSummary()
-    each_nonempty_buildtech do |catname|
-      each_nonempty_proglang do |lang, category|
-        @categories[catname].printPeriodicCouplingWith([category], @allcommits.periods, @projname, lang, catname)
-      end
-
-      @categories[catname].printPeriodicCouplingWith(@categories.values,@allcommits.periods, @projname, "all", catname)
-    end
-  end
-
+  # USEFUL ITERATORS
   def each_nonempty_proglang
     @categories.each do |lang, category|
       if (@langmap[lang] == "programming" and category.size > 0)
@@ -140,7 +115,52 @@ class FileCategories
     end
   end
 
-  def printCouplingData()
+
+  # CHURN
+  def printChurnData(summary=true)
+    if (summary)
+      printChurnDataSummary()
+    else
+      printChurnDataMonthly()
+    end
+  end
+
+  def printChurnDataSummary()
+    each_nonempty_buildtech do |catname|
+      print "#{@projname},#{catname},"
+      @categories[catname].print(@allcommits.periods, @allcommits.commits)
+      puts
+    end
+
+    puts "#{@projname},project,#{@allcommits.size},#{@allcommits.periods.size},#{@allauthors.size},#{@allfiles.size},1,0,0,0,0"
+  end
+
+  def printChurnDataMonthly()
+    each_nonempty_buildtech do |catname|
+      @categories[catname].printPeriods(@projname, catname, @allcommits.periods, @allcommits.commits)
+    end
+  end
+
+  # COUPLING
+  def printCouplingData(summary=true)
+    if (summary)
+      printCouplingDataSummary()
+    else
+      printCouplingDataMonthly()
+    end
+  end
+
+  def printCouplingDataSummary()
+    each_nonempty_buildtech do |catname|
+      each_nonempty_proglang do |lang, category|
+        @categories[catname].printPeriodicCouplingWith([category], @allcommits.periods, @projname, lang, catname)
+      end
+
+      @categories[catname].printPeriodicCouplingWith(@categories.values,@allcommits.periods, @projname, "all", catname)
+    end
+  end
+
+  def printCouplingDataMonthly()
     each_nonempty_buildtech do |catname|
       bldcommits = @categories[catname].commits.keys.to_set
       srcbldcommits = Set.new
@@ -165,6 +185,7 @@ class FileCategories
     puts "#{@projname},project,#{@allcommits.size},0,#{@allauthors.size},0,0,0,0,0,0,0,0,0"
   end
 
+  # ADOPTION
   def printTechAdoption
     @build_categories.each do |catname|
       if (@categories[catname].size > 0)
