@@ -96,12 +96,15 @@ class CategoryStats
                 allcmts = commitsinperiod(allcommits, period)
 
                 ratios << mycmts.size.to_f / allcmts.size.to_f
-                sum = 0
-                mycmts.each{|id| sum += @commits[id].lines(true)}
-                addsizes << sum
-                sum = 0
-                mycmts.each{|id| sum += @commits[id].lines(false)}
-                delsizes << sum
+
+                addsum = 0
+                delsum = 0
+                mycmts.each{|id|
+                  addsum += @commits[id].lines(true)
+                  delsum += @commits[id].lines(false)
+                }
+                addsizes << addsum
+                delsizes << delsum
             end
 
             STDOUT.print "#{@commits.size},#{pset.size},#{@authors.size},#{@files.size},#{median(ratios)},#{median(@lines_added)},#{median(@lines_deleted)},#{median(addsizes)},#{median(delsizes)}"
