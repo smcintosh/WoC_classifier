@@ -86,42 +86,35 @@ class CategoryStats
   end
 
   def print(allperiods, allcommits)
+    ratios = []
+    addsizes = []
+    delsizes = []
+    pset = myperiods(allperiods)
+    pset.each do |period|
+      mycmts = commitsinperiod(@commits, period) 
+      allcmts = commitsinperiod(allcommits, period)
+
+      ratios << mycmts.size.to_f / allcmts.size.to_f
+
+      addsum = 0
+      delsum = 0
+      mycmts.each do |id|
+        addsum += @commits[id].lines(true)
+        delsum += @commits[id].lines(false)
+      end
+      addsizes << addsum
+      delsizes << delsum
+    end
+
     commitcount = @commits.size
-    periodcount = 0
+    periodcount = pset.size
     authorcount = @authors.size
     filecount = @files.size
-    commitrate = 0
+    commitrate = median(ratios)
     linesadded = median(@lines_added)
     linesdeleted = median(@lines_deleted)
-    churnadded = 0
-    churndeleted = 0
-
-    if (@commits.size > 0)
-      ratios = []
-      addsizes = []
-      delsizes = []
-      pset = myperiods(allperiods)
-      pset.each do |period|
-        mycmts = commitsinperiod(@commits, period) 
-        allcmts = commitsinperiod(allcommits, period)
-
-        ratios << mycmts.size.to_f / allcmts.size.to_f
-
-        addsum = 0
-        delsum = 0
-        mycmts.each{|id|
-          addsum += @commits[id].lines(true)
-          delsum += @commits[id].lines(false)
-        }
-        addsizes << addsum
-        delsizes << delsum
-      end
-
-      periodcount = pset.size
-      commitrate = median(ratios)
-      churnadded = median(addsizes)
-      churndeleted = median(delsizes)
-    end
+    churnadded = median(addsizes)
+    churndeleted = median(delsizes)
 
     STDOUT.print "#{commitcount},#{periodcount},#{authorcount},#{filecount},#{commitrate},#{linesadded},#{linesdeleted},#{churnadded},#{churndeleted}"
   end
