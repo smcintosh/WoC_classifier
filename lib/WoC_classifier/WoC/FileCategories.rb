@@ -34,6 +34,21 @@ class FileCategories
     return (clean)
   end
 
+  def updateTotals(commitid, commitfile, author, lines, authtime)
+    @allfiles.add(commitfile)
+    @allcommits.add(commitid, commitfile, author, lines, authtime)
+    @allauthors.add(author)
+  end
+
+  def updateCategories(commitid, commitfile, author, lines, authtime)
+    lang = getlang(commitfile)
+    if (lang and @categories[lang])
+      @categories[lang].add(commitid, commitfile, author, lines, authtime)
+    else
+      @unclass.add(commitid, commitfile, author, lines, authtime)
+    end
+  end
+
   def parseFile(fname)
     File.read(fname).each_line do |line|
       line.strip!
@@ -43,16 +58,8 @@ class FileCategories
 
       commitfile = clean_file_path(commitfile)
 
-      @allfiles.add(commitfile)
-      @allcommits.add(commitid, commitfile, author, lines, authtime)
-      @allauthors.add(author)
-
-      lang = getlang(commitfile)
-      if (lang and @categories[lang])
-        @categories[lang].add(commitid, commitfile, author, lines, authtime)
-      else
-        @unclass.add(commitid, commitfile, author, lines, authtime)
-      end
+      updateTotals(commitid, commitfile, author, lines, authtime)
+      updateCategories(commitid, commitfile, author, lines, authtime)
     end
   end
 
