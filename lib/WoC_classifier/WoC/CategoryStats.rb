@@ -106,17 +106,7 @@ class CategoryStats
       delsizes << delsum
     end
 
-    commitcount = @commits.size
-    periodcount = pset.size
-    authorcount = @authors.size
-    filecount = @files.size
-    commitrate = median(ratios)
-    linesadded = median(@lines_added)
-    linesdeleted = median(@lines_deleted)
-    churnadded = median(addsizes)
-    churndeleted = median(delsizes)
-
-    STDOUT.print "#{commitcount},#{periodcount},#{authorcount},#{filecount},#{commitrate},#{linesadded},#{linesdeleted},#{churnadded},#{churndeleted}"
+    STDOUT.print "#{@commits.size},#{pset.size},#{@authors.size},#{@files.size},#{median(ratios)},#{median(@lines_added)},#{median(@lines_deleted)},#{median(addsizes)},#{median(delsizes)}"
   end
 
 
