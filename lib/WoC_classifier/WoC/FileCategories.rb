@@ -39,19 +39,19 @@ class FileCategories
       line.strip!
 
       # Parse the line
-      lsplit = line.split(";")
+      projpath,commitid,author,commiter,aeml,ceml,lines,authtime,committime,commitfile,message = line.split(";")
 
-      commitfile = clean_file_path(lsplit[9])
+      commitfile = clean_file_path(commitfile)
 
       @allfiles.add(commitfile)
-      @allcommits.add(lsplit[1], commitfile, lsplit[2], lsplit[6], lsplit[7])
-      @allauthors.add(lsplit[2])
+      @allcommits.add(commitid, commitfile, author, lines, authtime)
+      @allauthors.add(author)
 
       lang = getlang(commitfile)
       if (lang and @categories[lang])
-        @categories[lang].add(lsplit[1], commitfile, lsplit[2], lsplit[6], lsplit[7])
+        @categories[lang].add(commitid, commitfile, author, lines, authtime)
       else
-        @unclass.add(lsplit[1], commitfile, lsplit[2], lsplit[6], lsplit[7])
+        @unclass.add(commitid, commitfile, author, lines, authtime)
       end
     end
   end
