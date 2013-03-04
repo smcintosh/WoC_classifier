@@ -42,10 +42,10 @@ class CategoryStats
 
   def myperiods(allperiods)
     rtn = Set.new
-    myperiods = periods.sort
+    speriods = periods.sort
 
     allperiods.each do |period|
-      rtn.add(period) if (period >= myperiods.first and period <= myperiods.last)   
+      rtn.add(period) if (period >= speriods.first and period <= speriods.last)   
     end
 
     return rtn

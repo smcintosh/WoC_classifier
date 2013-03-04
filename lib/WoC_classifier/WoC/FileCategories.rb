@@ -103,44 +103,59 @@ class FileCategories
     end
   end
 
-  def printCouplingData(summary = true)
+  def printCouplingDataSummary()
+    each_nonempty_buildtech do |catname|
+      each_nonempty_proglang do |lang, category|
+        @categories[catname].printPeriodicCouplingWith([category], @allcommits.periods, @projname, lang, catname)
+      end
+
+      @categories[catname].printPeriodicCouplingWith(@categories.values,@allcommits.periods, @projname, "all", catname)
+    end
+  end
+
+  def each_nonempty_proglang
+    @categories.each do |lang, category|
+      if (@langmap[lang] == "programming" and category.size > 0)
+        yield lang,category
+      end
+    end
+  end
+
+  def each_nonempty_buildtech
     @build_categories.each do |catname|
       if (@categories[catname].size > 0)
-        if (summary)
-          bldcommits = @categories[catname].commits.keys.to_set
-          bldauthors = @categories[catname].authors
-          srcbldcommits = Set.new
-          srcbldauthors = Set.new
+        yield catname
+      end
+    end
+  end
 
-          @categories.each do |lang,category|
-            next if (@langmap[lang] != "programming" or category.size <= 0)
+  def printCouplingData(summary = true)
+    if (summary)
+      printCouplingDataSummary()
+    else
+      each_nonempty_buildtech do |catname|
+        bldcommits = @categories[catname].commits.keys.to_set
+        srcbldcommits = Set.new
+        bldauthors = @categories[catname].authors
+        srcbldauthors = Set.new
 
-            srccommits = category.commits.keys.to_set
-            srcauthors = category.authors
-            mysrcbldcommits = srccommits.intersection(bldcommits)
-            mysrcbldauthors = srcauthors.intersection(bldauthors)
-            srcbldcommits = srcbldcommits.union(mysrcbldcommits)
-            srcbldauthors = srcbldauthors.union(mysrcbldauthors)
+        each_nonempty_proglang do |lang,category|
+          srccommits = category.commits.keys.to_set
+          mysrcbldcommits = srccommits.intersection(bldcommits)
+          srcbldcommits = srcbldcommits.union(mysrcbldcommits)
 
-            puts "#{@projname},#{lang}-#{catname},#{srccommits.size},#{mysrcbldcommits.size},#{srcauthors.size},#{mysrcbldauthors.size},#{category.linesmedian(bldcommits, true)},#{category.linesmedian(bldcommits, false)},#{@categories[catname].linesmedian(srccommits, true, false)},#{@categories[catname].linesmedian(srccommits, false, false)},#{@categories[catname].churn(srccommits, true)},#{@categories[catname].churn(srccommits, false)},#{@categories[catname].churn(srccommits, true, false)},#{@categories[catname].churn(srccommits, false, false)}"
-          end
+          srcauthors = category.authors
+          mysrcbldauthors = srcauthors.intersection(bldauthors)
+          srcbldauthors = srcbldauthors.union(mysrcbldauthors)
 
-          puts "#{@projname},#{catname},#{bldcommits.size},#{srcbldcommits.size},#{bldauthors.size},#{srcbldauthors.size},#{@categories[catname].linesmedian(srcbldcommits, true)},#{@categories[catname].linesmedian(srcbldcommits, false)},#{@categories[catname].linesmedian(srcbldcommits, true, false)},#{@categories[catname].linesmedian(srcbldcommits, false, false)},#{@categories[catname].churn(srcbldcommits, true)},#{@categories[catname].churn(srcbldcommits, false)},#{@categories[catname].churn(srcbldcommits, true, false)},#{@categories[catname].churn(srcbldcommits, false, false)}"
-        else
-          @categories.each do |lang,category|
-            if (@langmap[lang] == "programming" and category.size > 0)
-              @categories[catname].printPeriodicCouplingWith([category], @allcommits.periods, @projname, lang, catname)
-            end
-          end
-
-          @categories[catname].printPeriodicCouplingWith(@categories.values,@allcommits.periods, @projname, "all", catname)
+          puts "#{@projname},#{lang}-#{catname},#{srccommits.size},#{mysrcbldcommits.size},#{srcauthors.size},#{mysrcbldauthors.size},#{category.linesmedian(bldcommits, true)},#{category.linesmedian(bldcommits, false)},#{@categories[catname].linesmedian(srccommits, true, false)},#{@categories[catname].linesmedian(srccommits, false, false)},#{@categories[catname].churn(srccommits, true)},#{@categories[catname].churn(srccommits, false)},#{@categories[catname].churn(srccommits, true, false)},#{@categories[catname].churn(srccommits, false, false)}"
         end
+
+        puts "#{@projname},#{catname},#{bldcommits.size},#{srcbldcommits.size},#{bldauthors.size},#{srcbldauthors.size},#{@categories[catname].linesmedian(srcbldcommits, true)},#{@categories[catname].linesmedian(srcbldcommits, false)},#{@categories[catname].linesmedian(srcbldcommits, true, false)},#{@categories[catname].linesmedian(srcbldcommits, false, false)},#{@categories[catname].churn(srcbldcommits, true)},#{@categories[catname].churn(srcbldcommits, false)},#{@categories[catname].churn(srcbldcommits, true, false)},#{@categories[catname].churn(srcbldcommits, false, false)}"
       end
     end
 
-    if (summary)
-      puts "#{@projname},project,#{@allcommits.size},0,#{@allauthors.size},0,0,0,0,0,0,0,0,0"
-    end
+    puts "#{@projname},project,#{@allcommits.size},0,#{@allauthors.size},0,0,0,0,0,0,0,0,0"
   end
 
   def printTechAdoption
