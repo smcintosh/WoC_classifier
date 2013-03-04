@@ -97,10 +97,10 @@ class CategoryStats
 
                 ratios << mycmts.size.to_f / allcmts.size.to_f
                 sum = 0
-                mycmts.each{|id| sum += @commits[id].addlines}
+                mycmts.each{|id| sum += @commits[id].lines(true)}
                 addsizes << sum
                 sum = 0
-                mycmts.each{|id| sum += @commits[id].dellines}
+                mycmts.each{|id| sum += @commits[id].lines(false)}
                 delsizes << sum
             end
 
@@ -157,7 +157,7 @@ class CategoryStats
         addlines = []
         @commits.each do |cid, commit|
             if ((inset and commitlist.include?(cid)) or (!inset and !commitlist.include?(cid)))
-                addlines << commit.addlines
+                addlines << commit.lines(true)
             end
         end
 
@@ -168,7 +168,7 @@ class CategoryStats
         dellines = []
         @commits.each do |cid, commit|
             if ((inset and commitlist.include?(cid)) or (!inset and !commitlist.include?(cid)))
-                dellines << commit.dellines
+                dellines << commit.lines(false)
             end
         end
 
@@ -183,11 +183,7 @@ class CategoryStats
 
         churn = 0
         thecommits.each do |cid|
-            if (add)
-                churn += @commits[cid].addlines
-            else
-                churn += @commits[cid].dellines
-            end
+            churn += @commits[cid].lines(add)
         end
 
         return churn
