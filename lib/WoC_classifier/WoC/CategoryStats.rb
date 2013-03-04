@@ -86,6 +86,16 @@ class CategoryStats
   end
 
   def print(allperiods, allcommits)
+    commitcount = @commits.size
+    periodcount = 0
+    authorcount = @authors.size
+    filecount = @files.size
+    commitrate = 0
+    linesadded = median(@lines_added)
+    linesdeleted = median(@lines_deleted)
+    churnadded = 0
+    churndeleted = 0
+
     if (@commits.size > 0)
       ratios = []
       addsizes = []
@@ -107,10 +117,13 @@ class CategoryStats
         delsizes << delsum
       end
 
-      STDOUT.print "#{@commits.size},#{pset.size},#{@authors.size},#{@files.size},#{median(ratios)},#{median(@lines_added)},#{median(@lines_deleted)},#{median(addsizes)},#{median(delsizes)}"
-    else
-      STDOUT.print "0,0,0,0,0,0,0,0,0"
+      periodcount = pset.size
+      commitrate = median(ratios)
+      churnadded = median(addsizes)
+      churndeleted = median(delsizes)
     end
+
+    STDOUT.print "#{commitcount},#{periodcount},#{authorcount},#{filecount},#{commitrate},#{linesadded},#{linesdeleted},#{churnadded},#{churndeleted}"
   end
 
 
