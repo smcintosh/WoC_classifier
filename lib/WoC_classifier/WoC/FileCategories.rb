@@ -56,12 +56,18 @@ class FileCategories
     end
   end
 
-  def printBuildData
-    print "#{@projname}"
+  def each_lang_and_tech
     @categories.sort.each do |lang, cat|
       if (@langmap[lang] == "programming" or @langmap[lang] == "buildtech")
-        print ",#{cat.filecount}"
+        yield cat
       end
+    end
+  end
+
+  def printBuildData
+    print "#{@projname}"
+    each_lang_and_tech do |cat|
+      print ",#{cat.filecount}"
     end
 
     puts ",#{@allfiles.size},#{@unclass.filecount.to_f/@allfiles.size.to_f},#{@allcommits.size},#{@allauthors.size}"
