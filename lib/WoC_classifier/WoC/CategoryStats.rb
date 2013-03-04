@@ -119,7 +119,7 @@ class CategoryStats
             allpauthors = authorsincommits(allcommits, allpcommits)
             mypfiles = filesincommits(@commits, mypcommits)
             allpfiles = filesincommits(allcommits, allpcommits)
-            STDOUT.puts "#{projname},#{period},#{tech},#{mypcommits.size},#{allpcommits.size},#{mypfiles.size},#{allpfiles.size},#{mypauthors.size},#{allpauthors.size},#{addmedian(mypcommits)},#{delmedian(mypcommits)}"
+            STDOUT.puts "#{projname},#{period},#{tech},#{mypcommits.size},#{allpcommits.size},#{mypfiles.size},#{allpfiles.size},#{mypauthors.size},#{allpauthors.size},#{linesmedian(mypcommits, true)},#{linesmedian(mypcommits, false)}"
         end
     end
 
@@ -153,26 +153,15 @@ class CategoryStats
         return med
     end
 
-    def addmedian(commitlist, inset=true)
-        addlines = []
+    def linesmedian(commitlist, add=true, inset=true)
+        lines = []
         @commits.each do |cid, commit|
             if ((inset and commitlist.include?(cid)) or (!inset and !commitlist.include?(cid)))
-                addlines << commit.lines(true)
+                lines << commit.lines(add)
             end
         end
 
-        return median(addlines)
-    end
-
-    def delmedian(commitlist, inset=true)
-        dellines = []
-        @commits.each do |cid, commit|
-            if ((inset and commitlist.include?(cid)) or (!inset and !commitlist.include?(cid)))
-                dellines << commit.lines(false)
-            end
-        end
-
-        return median(dellines)
+        return median(lines)
     end
 
     def churn(commitlist, add, inset=true)
