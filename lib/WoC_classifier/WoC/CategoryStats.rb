@@ -97,8 +97,9 @@ class CategoryStats
     pset = myperiods(allperiods)
     pset.each do |period|
       mycmts = commitsinperiod(@commits, period) 
+      allcmts = commitsinperiod(allcommits, period)
 
-      ratios << mycmts.size.to_f / commitsinperiod(allcommits, period).size.to_f
+      ratios << mycmts.size.to_f / allcmts.size.to_f
       addsizes << getchurn(mycmts, true)
       delsizes << getchurn(mycmts, false)
     end
@@ -136,14 +137,13 @@ class CategoryStats
 
   def median(arr)
     sorted = arr.sort
+    med = 0
 
-    if (arr.size > 2)
+    if (arr.size > 1)
       mid = arr.size/2
       med = (arr.size % 2 == 0) ? (arr[mid-1] + arr[mid]) / 2 : arr[mid]
     elsif (arr.size > 0)
       med = arr[0]
-    else
-      med = 0
     end
 
     return med
