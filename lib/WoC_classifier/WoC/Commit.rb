@@ -27,21 +27,11 @@ class Commit
         end
     end
 
-    def addlines
+    def lines(addlines=true)
         rtn = 0
         each_file do |fname, lines|
             add,del = lines.split(":")
-            rtn += add.to_i
-        end
-
-        return rtn
-    end
-
-    def dellines
-        rtn = 0
-        each_file do |fname, lines|
-            add,del = lines.split(":")
-            rtn += del.to_i
+            rtn += (addlines) ? add.to_i : del.to_i
         end
 
         return rtn

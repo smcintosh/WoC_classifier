@@ -5,149 +5,196 @@ require "set"
 require "WoC_classifier/WoC/CategoryStats.rb"
 
 class FileCategories
-    def initialize(proj, langmap)
-        @allfiles = Set.new
-        @allcommits = CategoryStats.new
-        @allauthors = Set.new
-        @unclass = CategoryStats.new
-        @projname = proj
-        @langmap = langmap
+  def initialize(proj, langmap)
+    @allfiles = Set.new
+    @allcommits = CategoryStats.new
+    @allauthors = Set.new
+    @unclass = CategoryStats.new
+    @projname = proj
+    @langmap = langmap
 
-        @categories = {}
-        @langmap.each do |lang, type|
-            @categories[lang] = CategoryStats.new()
-        end
-
-        @build_categories = ["Makefile", "Rake", "Jam", "SCons", "Autotools",
-            "CMake", "Ant", "Maven", "Ivy", "Bundler"]
+    @categories = {}
+    @langmap.each do |lang, type|
+      @categories[lang] = CategoryStats.new()
     end
 
-    def clean_file_path(dirty)
-        dirtysplit = dirty.split(" => ")
-        clean = ""
+    @build_categories = ["Makefile", "Rake", "Jam", "SCons", "Autotools",
+      "CMake", "Ant", "Maven", "Ivy", "Bundler"]
+  end
 
-        dirtysplit.size.times do |i|
-            clean.gsub!(/\{.*$/, '')
-            clean << dirtysplit[i].sub(/\}/, '')
-        end
+  def clean_file_path(dirty)
+    dirtysplit = dirty.split(" => ")
+    clean = ""
 
-        return (clean)
+    dirtysplit.size.times do |i|
+      clean.gsub!(/\{.*$/, '')
+        clean << dirtysplit[i].sub(/\}/, '')
     end
 
-    def parseFile(fname)
-        File.read(fname).each_line do |line|
-            line.strip!
+    return (clean)
+  end
 
-            # Parse the line
-            projpath,commitid,author,commiter,aeml,ceml,lines,authtime,committime,commitfile,message = line.split(";")
+  def updateTotals(commitid, commitfile, author, lines, authtime)
+    @allfiles.add(commitfile)
+    @allcommits.add(commitid, commitfile, author, lines, authtime)
+    @allauthors.add(author)
+  end
 
-            commitfile = clean_file_path(commitfile)
+  def updateCategories(commitid, commitfile, author, lines, authtime)
+    lang = getlang(commitfile)
+    if (lang and @categories[lang])
+      @categories[lang].add(commitid, commitfile, author, lines, authtime)
+    else
+      @unclass.add(commitid, commitfile, author, lines, authtime)
+    end
+  end
 
-            @allfiles.add(commitfile)
-            @allcommits.add(commitid, commitfile, author, lines, authtime)
-            @allauthors.add(author)
+  def parseFile(fname)
+    File.read(fname).each_line do |line|
+      line.strip!
 
-            lang = getlang(commitfile)
-            if (lang and @categories[lang])
-                @categories[lang].add(commitid, commitfile, author, lines, authtime)
-            else
-                @unclass.add(commitid, commitfile, author, lines, authtime)
-            end
-        end
+      # Parse the line
+      projpath,commitid,author,commiter,aeml,ceml,lines,authtime,committime,commitfile,message = line.split(";")
+
+      commitfile = clean_file_path(commitfile)
+
+      updateTotals(commitid, commitfile, author, lines, authtime)
+      updateCategories(commitid, commitfile, author, lines, authtime)
+    end
+  end
+
+  def each_lang_and_tech
+    @categories.sort.each do |lang, cat|
+      if (@langmap[lang] == "programming" or @langmap[lang] == "buildtech")
+        yield cat
+      end
+    end
+  end
+
+  def printBuildData
+    print "#{@projname}"
+    each_lang_and_tech do |cat|
+      print ",#{cat.filecount}"
     end
 
-    def printBuildData
-        print "#{@projname}"
-        @categories.sort.each do |lang, cat|
-            if (@langmap[lang] == "programming" or @langmap[lang] == "buildtech")
-                print ",#{cat.filecount}"
-            end
-        end
+    puts ",#{@allfiles.size},#{@unclass.filecount.to_f/@allfiles.size.to_f},#{@allcommits.size},#{@allauthors.size}"
+    STDOUT.flush
+  end
 
-        puts ",#{@allfiles.size},#{@unclass.filecount.to_f/@allfiles.size.to_f},#{@allcommits.size},#{@allauthors.size}"
-        STDOUT.flush
+  def getlang(fname)
+    tortn = nil
+    langs = Linguist::Language.find_by_filename(fname.split("/").last)
+    langs.each do |lang|
+      if (lang.type.to_s == "buildtech")
+        tortn = lang.name
+        break
+      end
     end
 
-    def getlang(fname)
-        tortn = nil
-        langs = Linguist::Language.find_by_filename(fname.split("/").last)
-        langs.each do |lang|
-            if (lang.type.to_s == "buildtech")
-                tortn = lang.name
-                break
-            end
-        end
-
-        if (!tortn and langs.first)
-            tortn = langs.first.name
-        end
-
-        return tortn
+    if (!tortn and langs.first)
+      tortn = langs.first.name
     end
 
-    def printChurnData(summary=true)
-        @build_categories.each do |catname|
-            if (@categories[catname].size > 0)
-                if (summary)
-                    print "#{@projname},#{catname},"
-                    @categories[catname].print(@allcommits.periods, @allcommits.commits)
-                    puts
-                else
-                    @categories[catname].printPeriods(@projname, catname, @allcommits.periods, @allcommits.commits)
-                end
-            end
-        end
+    return tortn
+  end
 
-        if (summary)
-            puts "#{@projname},project,#{@allcommits.size},#{@allcommits.periods.size},#{@allauthors.size},#{@allfiles.size},1,0,0,0,0"
-        end
+  # USEFUL ITERATORS
+  def each_nonempty_proglang
+    @categories.each do |lang, category|
+      if (@langmap[lang] == "programming" and category.size > 0)
+        yield lang,category
+      end
+    end
+  end
+
+  def each_nonempty_buildtech
+    @build_categories.each do |catname|
+      if (@categories[catname].size > 0)
+        yield catname
+      end
+    end
+  end
+
+
+  # CHURN
+  def printChurnData(summary=true)
+    if (summary)
+      printChurnDataSummary()
+    else
+      printChurnDataMonthly()
+    end
+  end
+
+  def printChurnDataSummary()
+    each_nonempty_buildtech do |catname|
+      print "#{@projname},#{catname},"
+      @categories[catname].print(@allcommits.periods, @allcommits.commits)
+      puts
     end
 
-    def printCouplingData(summary = true)
-        @build_categories.each do |catname|
-            if (@categories[catname].size > 0)
-                if (summary)
-                    bldcommits = @categories[catname].commits.keys.to_set
-                    bldauthors = @categories[catname].authors
-                    srcbldcommits = Set.new
-                    srcbldauthors = Set.new
+    puts "#{@projname},project,#{@allcommits.size},#{@allcommits.periods.size},#{@allauthors.size},#{@allfiles.size},1,0,0,0,0"
+  end
 
-                    @categories.each do |lang,category|
-                        next if (@langmap[lang] != "programming" or category.size <= 0)
+  def printChurnDataMonthly()
+    each_nonempty_buildtech do |catname|
+      @categories[catname].printPeriods(@projname, catname, @allcommits.periods, @allcommits.commits)
+    end
+  end
 
-                        srccommits = category.commits.keys.to_set
-                        srcauthors = category.authors
-                        mysrcbldcommits = srccommits.intersection(bldcommits)
-                        mysrcbldauthors = srcauthors.intersection(bldauthors)
-                        srcbldcommits = srcbldcommits.union(mysrcbldcommits)
-                        srcbldauthors = srcbldauthors.union(mysrcbldauthors)
+  # COUPLING
+  def printCouplingData(summary=true)
+    if (summary)
+      printCouplingDataSummary()
+    else
+      printCouplingDataMonthly()
+    end
+  end
 
-                        puts "#{@projname},#{lang}-#{catname},#{srccommits.size},#{mysrcbldcommits.size},#{srcauthors.size},#{mysrcbldauthors.size},#{category.addmedian(bldcommits)},#{category.delmedian(bldcommits)},#{@categories[catname].addmedian(srccommits, false)},#{@categories[catname].delmedian(srccommits, false)},#{@categories[catname].churn(srccommits, true)},#{@categories[catname].churn(srccommits, false)},#{@categories[catname].churn(srccommits, true, false)},#{@categories[catname].churn(srccommits, false, false)}"
-                    end
+  def printCouplingDataSummary()
+    each_nonempty_buildtech do |catname|
+      bldcommits = @categories[catname].commits.keys.to_set
+      srcbldcommits = Set.new
+      bldauthors = @categories[catname].authors
+      srcbldauthors = Set.new
 
-                    puts "#{@projname},#{catname},#{bldcommits.size},#{srcbldcommits.size},#{bldauthors.size},#{srcbldauthors.size},#{@categories[catname].addmedian(srcbldcommits)},#{@categories[catname].delmedian(srcbldcommits)},#{@categories[catname].addmedian(srcbldcommits, false)},#{@categories[catname].delmedian(srcbldcommits, false)},#{@categories[catname].churn(srcbldcommits, true)},#{@categories[catname].churn(srcbldcommits, false)},#{@categories[catname].churn(srcbldcommits, true, false)},#{@categories[catname].churn(srcbldcommits, false, false)}"
-                else
-                    @categories.each do |lang,category|
-                        if (@langmap[lang] == "programming" and category.size > 0)
-                            @categories[catname].printPeriodicCouplingWith([category], @allcommits.periods, @projname, lang, catname)
-                        end
-                    end
+      each_nonempty_proglang do |lang,category|
+        srccommits = category.commits.keys.to_set
+        mysrcbldcommits = srccommits.intersection(bldcommits)
+        srcbldcommits = srcbldcommits.union(mysrcbldcommits)
 
-                    @categories[catname].printPeriodicCouplingWith(@categories.values,@allcommits.periods, @projname, "all", catname)
-                end
-            end
-        end
+        srcauthors = category.authors
+        mysrcbldauthors = srcauthors.intersection(bldauthors)
+        srcbldauthors = srcbldauthors.union(mysrcbldauthors)
 
-        if (summary)
-            puts "#{@projname},project,#{@allcommits.size},0,#{@allauthors.size},0,0,0,0,0,0,0,0,0"
-        end
+        printCouplingDataSummaryLine("#{lang}-#{catname}", srccommits, mysrcbldcommits, srcauthors, mysrcbldauthors, category)
+      end
+
+      printCouplingDataSummaryLine(catname, bldcommits, srcbldcommits, bldauthors, srcbldauthors, @categories[catname])
     end
 
-    def printTechAdoption
-        @build_categories.each do |catname|
-            if (@categories[catname].size > 0)
-                puts "#{@projname},#{catname},#{@categories[catname].firstCommitPeriod},#{@categories[catname].firstCommitDelay(@allcommits.firstCommitPeriod, @allcommits.lastCommitPeriod)}"
-            end
-        end
+    printCouplingDataSummaryLine("project", @allcommits.commits, Set.new, @allauthors, Set.new, CategoryStats.new)
+  end
+
+  def printCouplingDataSummaryLine(techname, cmts, coupledcmts, authors, coupledauthors, category)
+    puts "#{@projname},#{techname},#{cmts.size},#{coupledcmts.size},#{authors.size},#{coupledauthors.size},#{category.linesmedian(cmts, true)},#{category.linesmedian(cmts, false)},#{category.linesmedian(cmts, true, false)},#{category.linesmedian(cmts, false, false)},#{category.churn(cmts, true)},#{category.churn(cmts, false)},#{category.churn(cmts, true, false)},#{category.churn(cmts, false, false)}"
+  end
+
+  # ADOPTION
+  def printTechAdoption
+    @build_categories.each do |catname|
+      if (@categories[catname].size > 0)
+        puts "#{@projname},#{catname},#{@categories[catname].firstCommitPeriod},#{@categories[catname].firstCommitDelay(@allcommits.firstCommitPeriod, @allcommits.lastCommitPeriod)}"
+      end
     end
+  end
+
+  def printCouplingDataMonthly()
+    each_nonempty_buildtech do |catname|
+      each_nonempty_proglang do |lang, category|
+        @categories[catname].printPeriodicCouplingWith([category], @allcommits.periods, @projname, lang, catname)
+      end
+
+      @categories[catname].printPeriodicCouplingWith(@categories.values,@allcommits.periods, @projname, "all", catname)
+    end
+  end
 end
