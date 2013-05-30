@@ -133,9 +133,13 @@ Autotools:
   - .m4
   filenames:
   - aclocal
-  - Configure
+  - acsite
+  - configure
   - config.h
   - Makefile.am
+  - makefile.am
+  - Makefile.in
+  - makefile.in
 
 Batchfile:
   type: programming
