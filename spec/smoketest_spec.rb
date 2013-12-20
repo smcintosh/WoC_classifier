@@ -8,25 +8,34 @@ describe WoCClassifier::AdoptionExtractor, "#extract" do
   end
 end
 
-describe WoCClassifier::ChurnExtractor, "#extract" do
+describe WoCClassifier::MedianChurnExtractor, "#extract" do
   it "fails to extract for invalid input" do
-    myextractor = WoCClassifier::ChurnExtractor.new(File.expand_path("../data/testlist", __FILE__), File.expand_path("../data/", __FILE__), 2)
-    myextractor.should_not be_nil
-    myextractor.extract_all
-
-    myextractor = WoCClassifier::ChurnExtractor.new(File.expand_path("../data/testlist", __FILE__), File.expand_path("../data/", __FILE__), 2, false)
+    myextractor = WoCClassifier::MedianChurnExtractor.new(File.expand_path("../data/testlist", __FILE__), File.expand_path("../data/", __FILE__), 2)
     myextractor.should_not be_nil
     myextractor.extract_all
   end
 end
 
-describe WoCClassifier::CouplingExtractor, "#extract" do
+describe WoCClassifier::MonthlyChurnExtractor, "#extract" do
   it "fails to extract for invalid input" do
-    myextractor = WoCClassifier::CouplingExtractor.new(File.expand_path("../data/testlist", __FILE__), File.expand_path("../data/", __FILE__), 2)
+    myextractor = WoCClassifier::MonthlyChurnExtractor.new(File.expand_path("../data/testlist", __FILE__), File.expand_path("../data/", __FILE__), 2)
     myextractor.should_not be_nil
     myextractor.extract_all
+  end
+end
 
-    myextractor = WoCClassifier::CouplingExtractor.new(File.expand_path("../data/testlist", __FILE__), File.expand_path("../data/", __FILE__), 2, false)
+describe WoCClassifier::MedianCouplingExtractor, "#extract" do
+  it "fails to extract for invalid input" do
+    myextractor = WoCClassifier::MedianCouplingExtractor.new(File.expand_path("../data/testlist", __FILE__), File.expand_path("../data/", __FILE__), 2)
+    myextractor.should_not be_nil
+    myextractor.extract_all
+  end
+end
+
+
+describe WoCClassifier::MonthlyCouplingExtractor, "#extract" do
+  it "fails to extract for invalid input" do
+    myextractor = WoCClassifier::MonthlyCouplingExtractor.new(File.expand_path("../data/testlist", __FILE__), File.expand_path("../data/", __FILE__))
     myextractor.should_not be_nil
     myextractor.extract_all
   end

@@ -117,15 +117,7 @@ class FileCategories
 
 
   # CHURN
-  def printChurnData(summary=true)
-    if (summary)
-      printChurnDataSummary()
-    else
-      printChurnDataMonthly()
-    end
-  end
-
-  def printChurnDataSummary()
+  def printChurnDataMedian()
     each_nonempty_buildtech do |catname|
       print "#{@projname},#{catname},"
       @categories[catname].print(@allcommits.periods, @allcommits.commits)
@@ -142,15 +134,7 @@ class FileCategories
   end
 
   # COUPLING
-  def printCouplingData(summary=true)
-    if (summary)
-      printCouplingDataSummary()
-    else
-      printCouplingDataMonthly()
-    end
-  end
-
-  def printCouplingDataSummary()
+  def printCouplingDataMedian()
     each_nonempty_buildtech do |catname|
       bldcommits = @categories[catname].commits.keys.to_set
       srcbldcommits = Set.new
@@ -166,27 +150,17 @@ class FileCategories
         mysrcbldauthors = srcauthors.intersection(bldauthors)
         srcbldauthors = srcbldauthors.union(mysrcbldauthors)
 
-        printCouplingDataSummaryLine("#{lang}-#{catname}", srccommits, mysrcbldcommits, srcauthors, mysrcbldauthors, category)
+        printCouplingDataMedianLine("#{lang}-#{catname}", srccommits, mysrcbldcommits, srcauthors, mysrcbldauthors, category)
       end
 
-      printCouplingDataSummaryLine(catname, bldcommits, srcbldcommits, bldauthors, srcbldauthors, @categories[catname])
+      printCouplingDataMedianLine(catname, bldcommits, srcbldcommits, bldauthors, srcbldauthors, @categories[catname])
     end
 
-    printCouplingDataSummaryLine("project", @allcommits.commits, Set.new, @allauthors, Set.new, CategoryStats.new)
+    printCouplingDataMedianLine("project", @allcommits.commits, Set.new, @allauthors, Set.new, CategoryStats.new)
   end
 
-  def printCouplingDataSummaryLine(techname, cmts, coupledcmts, authors, coupledauthors, category)
+  def printCouplingDataMedianLine(techname, cmts, coupledcmts, authors, coupledauthors, category)
     puts "#{@projname},#{techname},#{cmts.size},#{coupledcmts.size},#{authors.size},#{coupledauthors.size},#{category.linesmedian(cmts, true)},#{category.linesmedian(cmts, false)},#{category.linesmedian(cmts, true, false)},#{category.linesmedian(cmts, false, false)},#{category.churn(cmts, true)},#{category.churn(cmts, false)},#{category.churn(cmts, true, false)},#{category.churn(cmts, false, false)}"
-  end
-
-  # ADOPTION
-  def printTechAdoption
-    puts "#{@projname},project,#{@allcommits.firstCommitPeriod},0"
-    @build_categories.each do |catname|
-      if (@categories[catname].size > 0)
-        puts "#{@projname},#{catname},#{@categories[catname].firstCommitPeriod},#{@categories[catname].firstCommitDelay(@allcommits.firstCommitPeriod, @allcommits.lastCommitPeriod)}"
-      end
-    end
   end
 
   def printCouplingDataMonthly()
@@ -196,6 +170,16 @@ class FileCategories
       end
 
       @categories[catname].printPeriodicCouplingWith(@categories.values,@allcommits.periods, @projname, "all", catname)
+    end
+  end
+
+  # ADOPTION
+  def printTechAdoption
+    puts "#{@projname},project,#{@allcommits.firstCommitPeriod},0"
+    @build_categories.each do |catname|
+      if (@categories[catname].size > 0)
+        puts "#{@projname},#{catname},#{@categories[catname].firstCommitPeriod},#{@categories[catname].firstCommitDelay(@allcommits.firstCommitPeriod, @allcommits.lastCommitPeriod)}"
+      end
     end
   end
 end

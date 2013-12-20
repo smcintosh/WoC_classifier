@@ -17,10 +17,7 @@ module WoCClassifier
       puts "@data"
     end
 
-    def extract(prefix, filename)
-      fname = "#{prefix}#{filename}"
-      filecategories = FileCategories.new(filename, @langmap)
-      filecategories.parseFile(fname)
+    def print(filecategories)
       @print_mutex.synchronize do
         filecategories.printTechAdoption
       end

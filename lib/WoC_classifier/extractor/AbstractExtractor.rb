@@ -42,13 +42,20 @@ module WoCClassifier
       @tpool.teardown
     end
 
+    def extract(prefix, filename)
+      fname = "#{prefix}#{filename}"
+      filecategories = FileCategories.new(filename, @langmap)
+      filecategories.parseFile(fname)
+      print(filecategories)
+    end
+
     # Abstract method that is defined by concrete extractors
     def header
       raise MISSING
     end
 
     # Abstract method that is defined by concrete extractors
-    def extract(prefix, filename)
+    def print(filecategories)
       raise MISSING
     end
   end
