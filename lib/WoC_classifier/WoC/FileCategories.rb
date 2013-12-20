@@ -158,11 +158,11 @@ class FileCategories
       srcbldauthors = Set.new
 
       each_nonempty_proglang do |lang,category|
-        srccommits = category.commits.keys.to_set
+        srccommits = category.mycommitsinperiods(@categories[catname].myperiods(@allcommits.periods))
         mysrcbldcommits = srccommits.intersection(bldcommits)
         srcbldcommits = srcbldcommits.union(mysrcbldcommits)
 
-        srcauthors = category.authors
+        srcauthors = category.authorsincommits(category.commits, srccommits)
         mysrcbldauthors = srcauthors.intersection(bldauthors)
         srcbldauthors = srcbldauthors.union(mysrcbldauthors)
 
@@ -181,6 +181,7 @@ class FileCategories
 
   # ADOPTION
   def printTechAdoption
+    puts "#{@projname},project,#{@allcommits.firstCommitPeriod},0"
     @build_categories.each do |catname|
       if (@categories[catname].size > 0)
         puts "#{@projname},#{catname},#{@categories[catname].firstCommitPeriod},#{@categories[catname].firstCommitDelay(@allcommits.firstCommitPeriod, @allcommits.lastCommitPeriod)}"

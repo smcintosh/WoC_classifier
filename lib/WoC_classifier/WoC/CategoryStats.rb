@@ -60,6 +60,15 @@ class CategoryStats
     return commitset
   end
 
+  def mycommitsinperiods(periods)
+    commitset = Set.new
+    periods.each do |p|
+      commitset.merge(commitsinperiod(@commits, p))
+    end
+
+    return commitset
+  end
+
   def size
     return @commits.size
   end
@@ -68,7 +77,7 @@ class CategoryStats
     authorset = Set.new
 
     cids.each do |cid|
-      authorset.add(commits[cid].author)
+      authorset.add(commits[cid].author) if (commits[cid])
     end
 
     return authorset
@@ -116,12 +125,13 @@ class CategoryStats
       allpauthors = authorsincommits(allcommits, allpcommits)
       mypfiles = filesincommits(@commits, mypcommits)
       allpfiles = filesincommits(allcommits, allpcommits)
-      STDOUT.puts "#{projname},#{period},#{tech},#{mypcommits.size},#{allpcommits.size},#{mypfiles.size},#{allpfiles.size},#{mypauthors.size},#{allpauthors.size},#{linesmedian(mypcommits, true)},#{linesmedian(mypcommits, false)}"
+      STDOUT.puts "#{projname},#{tech},#{period},#{mypcommits.size},#{allpcommits.size},#{mypfiles.size},#{allpfiles.size},#{mypauthors.size},#{allpauthors.size},#{linesmedian(mypcommits, true)},#{linesmedian(mypcommits, false)},#{getchurn(mypcommits, true)},#{getchurn(mypcommits, false)}"
     end
   end
 
   def printPeriodicCouplingWith(categories, allperiods, projname, lang, tech)
     myperiods(allperiods).each do |period|
+      # Commits
       bldcids = commitsinperiod(@commits, period)
 
       srccids = Set.new
@@ -131,7 +141,12 @@ class CategoryStats
 
       srcbldcids = bldcids.intersection(srccids)
 
-      puts "#{projname},#{period},#{tech},#{lang},#{bldcids.size},#{srccids.size},#{srcbldcids.size}"
+      # Authors
+      bldauthors = authorsincommits(@commits, bldcids)
+      srcauthors = authorsincommits(@commits, srccids)
+      srcbldauthors = bldauthors.intersection(srcauthors)
+
+      puts "#{projname},#{tech},#{lang},#{period},#{bldcids.size},#{srccids.size},#{srcbldcids.size},#{bldauthors.size},#{srcauthors.size},#{srcbldauthors.size}"
     end
   end
 

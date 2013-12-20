@@ -5,17 +5,20 @@ module WoCClassifier
       return pathsplit[pathsplit.size-1]
     end
 
+    def self.get_projname_svn(line)
+      return line.split(";")[0].gsub(/\//, "_")
+    end
+
     def self.get_projname_cvs(line)
       pathsplit = line.split(";")[2].split("/")
       return pathsplit[1]
     end
 
-    def self.parse_server_file(fname)
+    def self.parse_server_file(fname, mydir = "WoC_projects")
       old_pname = ""
       outfile = nil
-
-      mydir = "WoC_projects"
-      Dir.mkdir(mydir) if (!Dir.exists?(mydir))
+      
+      Dir.mkdir(mydir) if (!File.directory?(mydir))
 
       File.foreach(fname) do |line|
         line.strip!
@@ -38,7 +41,7 @@ module WoCClassifier
 
         line.gsub!(/\/\.git;/, ';')
 
-        pname = get_projname_git(line)
+        pname = get_projname_svn(line)
 
         if (pname != old_pname)
           puts "\t#{pname}"

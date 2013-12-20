@@ -12,11 +12,22 @@ module WoCClassifier
       puts
       puts "@attribute projname string"
       puts "@attribute tech string"
-      puts "@attribute cmts numeric"
-      puts "@attribute periods numeric"
-      puts "@attribute authors numeric"
-      puts "@attribute files numeric"
-      puts "@attribute activity_med numeric"
+      if (@summary)
+        puts "@attribute cmts numeric"
+        puts "@attribute periods numeric"
+        puts "@attribute authors numeric"
+        puts "@attribute files numeric"
+        puts "@attribute activity_med numeric"
+      else
+        puts "@attribute period numeric"
+        puts "@attribute mycmts numeric"
+        puts "@attribute allcmts numeric"
+        puts "@attribute myfiles numeric"
+        puts "@attribute allfiles numeric"
+        puts "@attribute myauthors numeric"
+        puts "@attribute allauthors numeric"
+      end
+
       puts "@attribute lines_add_med numeric"
       puts "@attribute lines_del_med numeric"
       puts "@attribute lines_added numeric"
