@@ -26,14 +26,14 @@ module WoCClassifier
 
     def output(proj, filecategories)
       numfiles = filecategories.allfiles.size
-      numcommits = filecategories.allcommits.size
+      numcommits = filecategories.allcommits.commits.size
       numauthors = filecategories.allauthors.size
-      numunclass = filecategories.unclass.filecount
+      numunclass = filecategories.unclass.files.size
 
       @print_mutex.synchronize do
         print "#{proj}"
         filecategories.each_lang_and_tech do |cat|
-          print ",#{cat.filecount}"
+          print ",#{cat.files.size}"
         end
 
         puts ",#{numfiles},#{numunclass.to_f/numfiles.to_f},#{numcommits},#{numauthors}"

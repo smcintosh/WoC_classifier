@@ -13,12 +13,18 @@ module WoCClassifier
       puts "@data"
     end
 
+    def firstCommitDelay(category, realfirst, reallast)
+      catfirst = category.periods.sort.first
+      return (catfirst-realfirst)/(reallast-realfirst)
+    end
+
     def output(proj, filecategories)
-      allcommits = filecategories.allcommits
+      periods = filecategories.allcommits.periods.sort
       @print_mutex.synchronize do
-        puts "#{proj},project,#{allcommits.firstCommitPeriod},0"
+        puts "#{proj},project,#{periods.first},0"
         filecategories.each_nonempty_buildtech do |catname, category|
-          puts "#{proj},#{catname},#{category.firstCommitPeriod},#{category.firstCommitDelay(allcommits.firstCommitPeriod, allcommits.lastCommitPeriod)}"
+          catperiods = category.periods.sort
+          puts "#{proj},#{catname},#{catperiods.first},#{firstCommitDelay(category, periods.first, periods.last)}"
         end
       end
     end

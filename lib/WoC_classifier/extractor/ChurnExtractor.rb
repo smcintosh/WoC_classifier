@@ -62,7 +62,7 @@ module WoCClassifier
           category.print(proj, catname, allcommits.periods, allcommits.commits)
         end
 
-        puts "#{proj},project,#{allcommits.size},#{allcommits.periods.size},#{numauthors},#{numfiles},1,0,0,0,0"
+        puts "#{proj},project,#{allcommits.commits.size},#{allcommits.periods.size},#{numauthors},#{numfiles},1,0,0,0,0"
       end
     end
   end
