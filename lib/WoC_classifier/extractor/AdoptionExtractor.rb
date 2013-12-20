@@ -2,10 +2,6 @@ require "WoC_classifier/WoC/FileCategories.rb"
 
 module WoCClassifier
   class AdoptionExtractor < AbstractExtractor
-    def initialize(listfile, prefix="", numthreads=8)
-      super(listfile, prefix, numthreads)
-    end
-
     def header
       puts "@relation adoption_data"
       puts
@@ -17,9 +13,13 @@ module WoCClassifier
       puts "@data"
     end
 
-    def print(filecategories)
+    def output(proj, filecategories)
+      allcommits = filecategories.allcommits
       @print_mutex.synchronize do
-        filecategories.printTechAdoption
+        puts "#{proj},project,#{allcommits.firstCommitPeriod},0"
+        filecategories.each_nonempty_buildtech do |catname, category|
+          puts "#{proj},#{catname},#{category.firstCommitPeriod},#{category.firstCommitDelay(allcommits.firstCommitPeriod, allcommits.lastCommitPeriod)}"
+        end
       end
     end
   end

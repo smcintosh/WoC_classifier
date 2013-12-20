@@ -44,9 +44,9 @@ module WoCClassifier
 
     def extract(prefix, filename)
       fname = "#{prefix}#{filename}"
-      filecategories = FileCategories.new(filename, @langmap)
+      filecategories = FileCategories.new(@langmap)
       filecategories.parseFile(fname)
-      print(filecategories)
+      output(filename, filecategories)
     end
 
     # Abstract method that is defined by concrete extractors
@@ -55,7 +55,7 @@ module WoCClassifier
     end
 
     # Abstract method that is defined by concrete extractors
-    def print(filecategories)
+    def output(proj, filecategories)
       raise MISSING
     end
   end

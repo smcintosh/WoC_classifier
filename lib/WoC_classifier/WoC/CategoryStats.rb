@@ -98,7 +98,7 @@ class CategoryStats
     return commits.inject(0) {|sum, n| sum + @commits[n].lines(add) }
   end
 
-  def print(allperiods, allcommits)
+  def print(proj, catname, allperiods, allcommits)
     ratios = []
     addsizes = []
     delsizes = []
@@ -113,7 +113,7 @@ class CategoryStats
       delsizes << getchurn(mycmts, false)
     end
 
-    STDOUT.print "#{@commits.size},#{pset.size},#{@authors.size},#{@files.size},#{median(ratios)},#{median(@lines_added)},#{median(@lines_deleted)},#{median(addsizes)},#{median(delsizes)}"
+    STDOUT.puts "#{proj},#{catname},#{@commits.size},#{pset.size},#{@authors.size},#{@files.size},#{median(ratios)},#{median(@lines_added)},#{median(@lines_deleted)},#{median(addsizes)},#{median(delsizes)}"
   end
 
 

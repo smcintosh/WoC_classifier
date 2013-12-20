@@ -24,9 +24,19 @@ module WoCClassifier
       puts "@data"
     end
 
-    def print(filecategories)
+    def output(proj, filecategories)
+      numfiles = filecategories.allfiles.size
+      numcommits = filecategories.allcommits.size
+      numauthors = filecategories.allauthors.size
+      numunclass = filecategories.unclass.filecount
+
       @print_mutex.synchronize do
-        filecategories.printBuildData
+        print "#{proj}"
+        filecategories.each_lang_and_tech do |cat|
+          print ",#{cat.filecount}"
+        end
+
+        puts ",#{numfiles},#{numunclass.to_f/numfiles.to_f},#{numcommits},#{numauthors}"
       end
     end
   end

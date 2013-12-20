@@ -31,9 +31,17 @@ module WoCClassifier
       puts "@attribute coauthors numeric"
     end
 
-    def print(filecategories)
+    def output(proj, filecategories)
+      allcommits = filecategories.allcommits
+      categories = filecategories.categories
       @print_mutex.synchronize do
-        filecategories.printCouplingDataMonthly
+        filecategories.each_nonempty_buildtech do |tech, bldcategory|
+          filecategories.each_nonempty_proglang do |lang, srccategory|
+            bldcategory.printPeriodicCouplingWith([srccategory], allcommits.periods, proj, lang, tech)
+          end
+
+          bldcategory.printPeriodicCouplingWith(categories.values,allcommits.periods, proj, "all", tech)
+        end
       end
     end
   end
@@ -54,10 +62,39 @@ module WoCClassifier
       puts "@attribute lines_del_comp_churn numeric"
     end
 
-    def print(filecategories)
+    def output(proj, filecategories)
+      allcommits = filecategories.allcommits
+      allauthors = filecategories.allauthors
+
       @print_mutex.synchronize do
-        filecategories.printCouplingDataMedian
+        filecategories.each_nonempty_buildtech do |tech, bldcategory|
+          bldcommits = bldcategory.commits.keys.to_set
+          srcbldcommits = Set.new
+          bldauthors = bldcategory.authors
+          srcbldauthors = Set.new
+
+          filecategories.each_nonempty_proglang do |lang, srccategory|
+            srccommits = srccategory.mycommitsinperiods(bldcategory.myperiods(allcommits.periods))
+            mysrcbldcommits = srccommits.intersection(bldcommits)
+            srcbldcommits = srcbldcommits.union(mysrcbldcommits)
+
+            srcauthors = srccategory.authorsincommits(srccategory.commits, srccommits)
+            mysrcbldauthors = srcauthors.intersection(bldauthors)
+            srcbldauthors = srcbldauthors.union(mysrcbldauthors)
+
+            printLine(proj, "#{lang}-#{tech}", srccommits, mysrcbldcommits, srcauthors, mysrcbldauthors, srccategory)
+          end
+
+          printLine(proj, tech, bldcommits, srcbldcommits, bldauthors, srcbldauthors, bldcategory)
+        end
+
+        printLine(proj, "project", allcommits.commits, Set.new, allauthors, Set.new, CategoryStats.new)
       end
     end
+
+    def printLine(proj, tech, cmts, coupledcmts, authors, coupledauthors, category)
+      puts "#{proj},#{tech},#{cmts.size},#{coupledcmts.size},#{authors.size},#{coupledauthors.size},#{category.linesmedian(cmts, true)},#{category.linesmedian(cmts, false)},#{category.linesmedian(cmts, true, false)},#{category.linesmedian(cmts, false, false)},#{category.churn(cmts, true)},#{category.churn(cmts, false)},#{category.churn(cmts, true, false)},#{category.churn(cmts, false, false)}"
+    end
+
   end
 end

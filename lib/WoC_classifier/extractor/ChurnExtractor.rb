@@ -34,9 +34,12 @@ module WoCClassifier
       puts "@attribute allauthors numeric"
     end
 
-    def print(filecategories)
+    def output(proj, filecategories)
+      allcommits = filecategories.allcommits
       @print_mutex.synchronize do
-        filecategories.printChurnDataMonthly
+        filecategories.each_nonempty_buildtech do |catname, category|
+          category.printPeriods(proj, catname, allcommits.periods, allcommits.commits)
+        end
       end
     end
   end
@@ -50,9 +53,16 @@ module WoCClassifier
       puts "@attribute activity_med numeric"
     end
 
-    def print(filecategories)
+    def output(proj, filecategories)
+      allcommits = filecategories.allcommits
+      numauthors = filecategories.allauthors.size
+      numfiles = filecategories.allfiles.size
       @print_mutex.synchronize do
-        filecategories.printChurnDataMedian
+        filecategories.each_nonempty_buildtech do |catname, category|
+          category.print(proj, catname, allcommits.periods, allcommits.commits)
+        end
+
+        puts "#{proj},project,#{allcommits.size},#{allcommits.periods.size},#{numauthors},#{numfiles},1,0,0,0,0"
       end
     end
   end
