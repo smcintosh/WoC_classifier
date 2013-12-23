@@ -23,6 +23,7 @@ module WoCClassifier
     def header_body
       puts "@attribute lang string"
       puts "@attribute period numeric"
+      puts "@attribute period_num numeric"
       puts "@attribute bldcmts numeric"
       puts "@attribute srccmts numeric"
       puts "@attribute cocmts numeric"

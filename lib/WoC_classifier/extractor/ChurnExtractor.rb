@@ -26,6 +26,7 @@ module WoCClassifier
   class MonthlyChurnExtractor < AbstractChurnExtractor
     def header_body
       puts "@attribute period numeric"
+      puts "@attribute period_num numeric"
       puts "@attribute mycmts numeric"
       puts "@attribute allcmts numeric"
       puts "@attribute myfiles numeric"

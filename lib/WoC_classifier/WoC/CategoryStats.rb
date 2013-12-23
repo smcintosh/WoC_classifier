@@ -113,19 +113,34 @@ module WoCClassifier
     end
 
     def printPeriods(projname, tech, allperiods, allcommits)
-      myperiods(allperiods).each do |period|
+      pnum = 1
+      prior_period = nil
+      myperiods(allperiods).sort.each do |period|
         mypcommits = commitsinperiod(@commits, period)
         allpcommits = commitsinperiod(allcommits, period)
         mypauthors = authorsincommits(@commits, mypcommits)
         allpauthors = authorsincommits(allcommits, allpcommits)
         mypfiles = filesincommits(@commits, mypcommits)
         allpfiles = filesincommits(allcommits, allpcommits)
-        puts "#{projname},#{tech},#{period},#{mypcommits.size},#{allpcommits.size},#{mypfiles.size},#{allpfiles.size},#{mypauthors.size},#{allpauthors.size},#{linesmedian(mypcommits, true)},#{linesmedian(mypcommits, false)},#{getchurn(mypcommits, true)},#{getchurn(mypcommits, false)}"
+
+        if (prior_period)
+          # Fill in zeroes for the gap
+          (((period-prior_period) * 12).round-1).times do |i|
+            pnum += 1
+            puts "#{projname},#{tech},#{prior_period + (i+1).to_f/12.to_f},#{pnum},0,0,0,0,0,0,0,0,0,0"
+          end
+          pnum += 1
+        end
+        prior_period = period
+
+        puts "#{projname},#{tech},#{period},#{pnum},#{mypcommits.size},#{allpcommits.size},#{mypfiles.size},#{allpfiles.size},#{mypauthors.size},#{allpauthors.size},#{linesmedian(mypcommits, true)},#{linesmedian(mypcommits, false)},#{getchurn(mypcommits, true)},#{getchurn(mypcommits, false)}"
       end
     end
 
     def printPeriodicCouplingWith(categories, allperiods, projname, lang, tech)
-      myperiods(allperiods).each do |period|
+      pnum = 1
+      prior_period = nil
+      myperiods(allperiods).sort.each do |period|
         # Commits
         bldcids = commitsinperiod(@commits, period)
 
@@ -141,7 +156,17 @@ module WoCClassifier
         srcauthors = authorsincommits(@commits, srccids)
         srcbldauthors = bldauthors.intersection(srcauthors)
 
-        puts "#{projname},#{tech},#{lang},#{period},#{bldcids.size},#{srccids.size},#{srcbldcids.size},#{bldauthors.size},#{srcauthors.size},#{srcbldauthors.size}"
+        if (prior_period)
+          # Fill in zeroes for the gap
+          (((period-prior_period) * 12).round-1).times do |i|
+            pnum += 1
+            puts "#{projname},#{tech},#{lang},#{prior_period + (i+1).to_f/12.to_f},#{pnum},0,0,0,0,0,0"
+          end
+          pnum += 1
+        end
+        prior_period = period
+
+        puts "#{projname},#{tech},#{lang},#{period},#{pnum},#{bldcids.size},#{srccids.size},#{srcbldcids.size},#{bldauthors.size},#{srcauthors.size},#{srcbldauthors.size}"
       end
     end
 
