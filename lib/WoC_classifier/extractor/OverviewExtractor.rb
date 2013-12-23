@@ -2,10 +2,6 @@ require "WoC_classifier/WoC/FileCategories.rb"
 
 module WoCClassifier
   class OverviewExtractor < AbstractExtractor
-    def initialize(listfile, prefix="", numthreads=8)
-      super(listfile, prefix, numthreads)
-    end
-
     def header
       puts "@relation prelim_data"
       puts
